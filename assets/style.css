@@ -1,0 +1,197 @@
+/* === Tema / Layout === */
+:root {
+  --bg: #0b0c10;
+  --panel: #111318;
+  --muted: #9aa3b2;
+  --text: #e6edf3;
+  --accent: #5ac8fa;
+  --warn: #fbbf24;
+  --border: #242936;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial;
+  background: radial-gradient(1200px 600px at 10% -10%, #182033 0%, #0b0c10 50%, #0b0c10 100%);
+  color: var(--text);
+  width: auto;
+}
+
+.container {
+  margin: 24px auto; padding: 16px; display: grid; gap: 16px;
+  grid-template-columns: 40vw 50vw; align-items: start;
+}
+
+.card {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.25);
+}
+
+h1 { font-size: 22px; margin: 0 0 6px; font-weight: 700; letter-spacing: .2px; }
+h2 { font-size: 14px; margin: 0 0 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .8px; }
+label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+
+input[type="text"], input[type="number"], input[type="date"], textarea {
+  width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: #0e1116; color: var(--text);
+  outline: none; transition: border-color .15s ease;
+}
+input:focus, textarea:focus { border-color: var(--accent); }
+
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.items { display: grid; gap: 10px; margin-top: 8px; }
+.item-card {
+  display: grid; gap: 10px; align-items: end;
+  background: #0f1218; border: 1px dashed #2a3243; border-radius: 12px; padding: 10px;
+}
+.remove { justify-self: end; }
+
+.totals { display: grid; grid-template-columns: 1fr auto; align-items: center; margin-top: 12px; }
+.badge { font-variant-numeric: tabular-nums; font-weight: 700; }
+
+.btn { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--border); background: #0e1116; color: var(--text); padding: 10px 12px; border-radius: 12px; cursor: pointer; font-weight: 600; text-decoration: none; user-select: none; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: #051018; border-color: var(--accent); }
+.btn.warn { background: #20140d; border-color: #3d2417; color: #fbbf24; }
+.btn.ghost { background: transparent; }
+
+.header-items { margin-top:14px; display:flex; justify-content: space-between; align-items: center; }
+
+.preview-wrap { position: sticky; top: 16px; }
+
+/* === Área PDF === */
+.pdf {
+  width: 210mm; margin: 0 auto; background: #ffffff; color: #111826; border-radius: 10px; overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0,0,0,.35);
+}
+.pdf .page { padding: 10mm 25mm 10mm 5mm; }
+
+.pdf h3 { margin: 0 0 8px; font-size: 16px; color: #0f172a; }
+.pdf .meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; font-size: 13px; }
+
+.pdf .meta .field{
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.pdf .meta .field.pvDate > :last-child{
+  margin-left: auto;  
+  text-align: right;   
+}
+.pdf .meta .label { color: #334155; width: 90px; }
+
+.pdf table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.pdf thead th {
+  text-align: center; background: #f1f5f9; color: #0f172a; padding: 10px; border: 1px solid #000000; font-weight: 700;
+}
+.pdf tbody td { padding: 9px 10px; border: 1px solid #000000; }
+.pdf tfoot td { padding: 10px; font-weight: 800; }
+.pdf .right { text-align: center; }
+
+.info {
+  margin-top: 16px; border: 1px solid #000000; border-radius: 8px; padding: 12px; background: #f8fafc;
+  font-size: 12px; color: #334155;
+}
+.info h4 { margin: 0 0 8px; font-size: 12px; color: #111827; }
+.info ul { margin: 0; padding-left: 18px; }
+.info li { margin: 4px 0; }
+
+.pdf-footer { margin-top: 10px; font-size: 11px; color: #475569; display: flex; justify-content: space-between; }
+
+.toolbar { display: flex; gap: 10px; margin-top: 10px; }
+
+.main-logo {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+}
+
+/* === Estilos del rectángulo de redes (mismo look que el PDF) === */
+.social-box{
+  margin-top: 10mm;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* cambiá 4 por la cantidad de redes */
+  align-items: stretch;
+  width: 100%;
+  font-size: 15px;
+  color: #111;
+}
+
+.social-cell{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+}
+
+.social-icon{
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  /* Si tus íconos son color, podés forzar monocromo:
+     filter: grayscale(100%); */
+}
+
+/* Si querés que baje a 2 columnas cuando sea angosto (opcional) */
+@media (max-width: 600px){
+  .social-box{ grid-template-columns: repeat(2, 1fr); }
+}
+
+/* --------- Responsive --------- */
+@media (max-width: 900px){
+  .container{
+    grid-template-columns: 1fr;        /* una sola columna */
+  }
+  .preview-wrap{
+    position: static;                   /* sin sticky en móvil */
+    margin-top: 12px;
+  }
+}
+
+/* Ajustes extra en pantallas chicas */
+@media (max-width: 600px){
+  .row{ grid-template-columns: 1fr; }   /* inputs en 1 columna */
+  .item-card{
+    grid-template-columns: 1fr;         /* ítems apilados */
+  }
+  .pdf{
+    width: 100%;                        /* que el preview ocupe el ancho del tel */
+    border-radius: 8px;
+  }
+  .pdf .page{
+    padding: 16px 12px;                 /* menos padding en móvil */
+  }
+  table{ display: block; overflow-x: auto; }  /* scroll horizontal si hace falta */
+}
+
+
+/* Acciones dentro del ítem (Confirmar / Eliminar) */
+.item__actions{
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* Ítem confirmado mostrado como “línea” */
+.item--locked{
+  display: grid;
+  gap: var(--space-3);
+  align-items: center;
+  background: #0f1218;
+  border: 1px solid #2a3243;
+  border-radius: 12px;
+  padding: var(--space-3);
+}
+
+/* En desktop lo mostramos en 1 fila (qty | desc | precio | total | acciones) */
+@media (min-width: 720px){
+  .item--locked{
+    grid-template-columns: 100px 1fr 140px 120px 40px;
+  }
+}
+
+.item--locked .cell--price,
+.item--locked .cell--total{ text-align: right; }
+

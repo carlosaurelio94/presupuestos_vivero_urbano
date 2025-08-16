@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Presupuesto · Urbano</title>
+
+  <!-- Librería para generar PDF (html2canvas + jsPDF) -->
+  <script defer src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+  <link rel="shortcut icon" href="./assets/images.png" type="image/x-icon">
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="./assets/style.css" />
+</head>
+<body>
+  <div class="container">
+    <section class="card generador">
+      <h1>Generador de Presupuestos</h1>
+      <h2>Formulario</h2>
+
+      <div class="row">
+        <div>
+          <label>Cliente</label>
+          <input id="customer" type="text" placeholder="Nombre del cliente" />
+        </div>
+        <div>
+          <label>Dirección</label>
+          <input id="address" type="text" placeholder="Dirección" />
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <div>
+          <label>Fecha</label>
+          <input id="date" type="date" />
+        </div>
+        <div>
+          <label>Moneda (visual)</label>
+          <input id="currency" type="text" value=" $" />
+        </div>
+      </div>
+
+      <div class="header-items">
+        <h2>Ítems</h2>
+        <button class="btn" id="addItem" type="button">➕ Agregar ítem</button>
+      </div>
+
+      <div id="items" class="items"></div>
+
+      <div class="totals">
+        <small class="muted">Se calcula automáticamente</small>
+        <div class="badge" id="totalBadge">Total: 0,00 $</div>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn" id="seed" type="button">📋 Cargar ejemplo</button>
+        <button class="btn primary" id="download" type="button">🧾 Descargar PDF</button>
+      </div>
+    </section>
+
+    <aside class="preview-wrap">
+      <div class="card preview">
+        <h2>Vista previa</h2>
+        <div id="pdfTarget" class="pdf">
+          <div class="page">
+            <img class="main-logo" src="./assets/images.png" alt="">
+            <div class="meta">
+              <div class="field"><div class="label">Cliente:</div><div id="pvCustomer">—</div></div>
+              <div class="field pvDate"><div id="pvDate">—</div></div>
+              <div class="field"><div class="label">Dirección:</div><div id="pvAddress">—</div></div>
+            </div>
+
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 70px;">Cant</th>
+                  <th>Descripción</th>
+                  <th class="right" style="width: 130px;">Precio unidad</th>
+                  <th class="right" style="width: 120px;">Total</th>
+                </tr>
+              </thead>
+              <tbody id="pvBody"></tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="3" class="right">TOTAL</td>
+                  <td class="right" id="pvGrand">0,00 $</td>
+                </tr>
+              </tfoot>
+            </table>
+
+            <div class="info">
+              <h4>Información</h4>
+              <ul>
+                <li>El siguiente presupuesto no incluye IVA.</li>
+                <li>Al momento de aprobar el presupuesto debe cancelar el 80% del monto total y el 20% restante al momento de culminar el trabajo.</li>
+                <li>Métodos de pago: aceptamos efectivo en divisa, transferencias nacionales como Banesco, Provincial, Mercantil, Venezolano de Crédito y Banco de Venezuela.</li>
+              </ul>
+            </div>
+            <!-- === BLOQUE REDES SOCIALES (pegar dentro de #pdfTarget .page) === -->
+            <div class="social-box">
+              <div class="social-cell">
+                <img class="social-icon" src="./assets/instagram.png" alt="Instagram">
+                <span>@urbano_jardines</span>
+              </div>
+              <div class="social-cell">
+                <img class="social-icon" src="./assets/whatsapp.png" alt="WhatsApp">
+                <span>(0424)1681749</span>
+              </div>
+              <div class="social-cell">
+                <img class="social-icon" src="./assets/gmail.png" alt="gmail">
+                <span>urbanojardinypaisajismo@gmail.com</span>
+              </div>
+              <div class="social-cell">
+                <img class="social-icon" src="./assets/facebook.png" alt="Facebook">
+                <span>facebook.com/urbanojardin/</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="toolbar" style="margin-top:12px">
+          <button class="btn ghost" id="download2" type="button">⬇️ Descargar PDF</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- App -->
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
