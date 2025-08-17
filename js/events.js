@@ -79,6 +79,15 @@ export function bindEvents(state, els) {
       return;
     }
 
+    const btnUnconfirm = e.target.closest('button[data-unconfirm]');
+    if (btnUnconfirm) {
+      const i = Number(btnUnconfirm.getAttribute('data-unconfirm'));
+      if (!Number.isInteger(i) || i < 0 || i >= state.items.length) return;
+      state.items[i].confirmed = false;   // vuelve a modo formulario
+      renderItems(state, els);            // re-dibuja con inputs cargados
+      return;
+    }
+
     const btnRemove = e.target.closest('button[data-remove]');
     if (btnRemove) {
       const i = Number(btnRemove.getAttribute('data-remove'));

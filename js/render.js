@@ -17,34 +17,32 @@ export function renderItems(state, els) {
       wrap.innerHTML = `
         <div>
           <label class="form-label">Cantidad</label>
-          <input class="input" type="number" min="0" step="1"
-                value="${it.qty}" data-i="${i}" data-k="qty" />
+          <input class="input" type="number" min="0" step="1" value="${it.qty}" data-i="${i}" data-k="qty" />
         </div>
         <div>
           <label class="form-label">Descripción</label>
-          <input class="input" type="text" placeholder="Ej: Ucaros"
-                value="${it.desc}" data-i="${i}" data-k="desc" />
+          <input class="input" type="text" value="${it.desc}" placeholder="Ej: Ucaros" data-i="${i}" data-k="desc" />
         </div>
         <div>
           <label class="form-label">Precio unidad</label>
-          <input class="input" type="number" min="0" step="0.01"
-                value="${it.price}" data-i="${i}" data-k="price" />
+          <input class="input" type="number" min="0" step="0.01" value="${it.price}" data-i="${i}" data-k="price" />
         </div>
         <div class="item__actions">
-          <button class="btn btn--primary" data-confirm="${i}" type="button">Confirmar</button>
-          <button class="btn btn--warn" data-remove="${i}" type="button">✕</button>
+          <button class="btn primary" data-confirm="${i}" type="button">Confirmar</button>
+          <button class="btn warn" data-remove="${i}" type="button">✕</button>
         </div>
       `;
     } else {
       // ---- MODO LÍNEA CONFIRMADA ----
       wrap.className = 'item item--locked';
       wrap.innerHTML = `
-        <div class="cell--qty">${it.qty}</div>
-        <div class="cell--desc">${it.desc}</div>
-        <div class="cell--price">${fmtVE(it.price, state.currency)}</div>
-        <div class="cell--total">${fmtVE(it.qty * it.price, state.currency)}</div>
+        <div class="cell cell--qty">${it.qty}</div>
+        <div class="cell cell--desc">${it.desc}</div>
+        <div class="cell cell--price">${fmtVE(it.price, state.currency)}</div>
+        <div class="cell cell--total">${fmtVE(it.qty * it.price, state.currency)}</div>
         <div class="item__actions">
-          <button class="btn btn--warn" data-remove="${i}" type="button">✕</button>
+          <button class="btn" data-unconfirm="${i}" type="button">Editar</button>
+          <button class="btn warn" data-remove="${i}" type="button">✕</button>
         </div>
       `;
     }
