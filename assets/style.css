@@ -94,7 +94,7 @@ input:focus, textarea:focus{ border-color: var(--accent); }
 
 /* === PDF area === */
 .pdf{
-  width:210mm;
+  width:310mm;
   margin:0 auto;
   background:#ffffff; color:#111826;
   border-radius:10px; overflow:hidden;
