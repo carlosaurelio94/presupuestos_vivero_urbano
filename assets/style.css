@@ -150,6 +150,18 @@ input:focus, textarea:focus{ border-color: var(--accent); }
   display:grid; gap: var(--space-3); align-items:center;
   background:#0f1218; border:1px solid #2a3243; border-radius:12px; padding: var(--space-3);
 }
+.cantidad {
+  width: 20%;
+}
+.descripcion {
+  width: 40%;
+}
+.precio {
+  width: 20%;
+}
+.total {
+  width: 20%;
+}
 @media (min-width: 720px){
   .item--locked{
     grid-template-columns: 100px 1fr 160px 160px auto; /* qty | desc | precio | total | acciones */
