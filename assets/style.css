@@ -176,9 +176,9 @@ input:focus, textarea:focus{ border-color: var(--accent); }
 @media (max-width: 600px){
   .row{ grid-template-columns:1fr; }
   .item-card{ grid-template-columns:1fr; }
-  .pdf{ width:210mm; border-radius:8px; }
+  .pdf{ width:100%; border-radius:8px; }
   .pdf .page{ padding:16px 12px; }
-  table{ display:block; overflow-x:auto; }
+  table{ width:100%; display:block; overflow-x:auto; }
   .social-box{ grid-template-columns: repeat(2, 1fr); }
 }
 
