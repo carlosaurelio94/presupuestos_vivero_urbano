@@ -36,9 +36,7 @@ export function renderItems(state, els) {
       // ---- MODO LÍNEA CONFIRMADA ----
       wrap.className = 'item item--locked';
       wrap.innerHTML = `
-        <div class="cell cell--qty">${it.qty}</div>
         <div class="cell cell--desc">${it.desc}</div>
-        <div class="cell cell--price">${fmtVE(it.price, state.currency)}</div>
         <div class="cell cell--total">${fmtVE(it.qty * it.price, state.currency)}</div>
         <div class="item__actions">
           <button class="btn" data-unconfirm="${i}" type="button">Editar</button>

@@ -15,8 +15,14 @@ export function bindEvents(state, els) {
   };
 
   const onAddress = (e) => {
-    state.address = e.target.value;
-    els.pvAddress.textContent = state.address || '—';
+    state.address = e.target.value.trim();
+    if (state.address) {
+      els.pvAddress.textContent = state.address;
+      els.pvAddress.parentElement.style.display = "flex";
+    } else {
+      els.pvAddress.textContent = "";
+      els.pvAddress.parentElement.style.display = "none";
+    }
   };
 
   const onCurrency = (e) => {
@@ -34,15 +40,21 @@ export function bindEvents(state, els) {
   };
 
   const onRif = (e) => {
-    state.rif = e.target.value;
-    els.pvRif.textContent = state.rif || '—';
+    state.rif = e.target.value.trim();
+    if (state.rif) {
+      els.pvRif.textContent = state.rif;
+      els.pvRif.parentElement.style.display = "flex";
+    } else {
+      els.pvRif.textContent = "";
+      els.pvRif.parentElement.style.display = "none";
+    }
   };
 
   const onDate = (e) => {
-    state.date = new Date(e.target.value);
+    const [year, month, day] = e.target.value.split('-').map(Number);
+    state.date = new Date(year, month - 1, day); // 👈 construyo la fecha en local
     els.pvDate.textContent = dateHuman(state.date);
   };
-
   // Edición de inputs dentro de la lista (sin re-render global)
   const onItemsInput = (e) => {
     const input = e.target;

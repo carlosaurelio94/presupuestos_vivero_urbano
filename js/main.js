@@ -13,5 +13,10 @@ els.pvDate.textContent = dateHuman(state.date);
 bindEvents(state, els);   // 👈 solo UNA vez
 renderItems(state, els);
 
+
+// 👇 Ocultar campos vacíos al inicio
+if (!state.address) els.pvAddress.parentElement.style.display = "none";
+if (!state.rif) els.pvRif.parentElement.style.display = "none";
+
 els.download.addEventListener('click', () => downloadPdf(state, els));
 els.download2.addEventListener('click', () => downloadPdf(state, els));

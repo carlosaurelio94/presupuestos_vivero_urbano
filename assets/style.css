@@ -105,14 +105,12 @@ input:focus, textarea:focus{ border-color: var(--accent); }
 .pdf h3{ margin:0 0 8px; font-size:16px; color:#0f172a; }
 .pdf .meta {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* dos columnas */
+  grid-template-columns: 1fr auto; 
   gap: 6px 12px;
   margin-bottom: 14px;
   font-size: 13px;
 }
 
-.pdf .meta .cliente { grid-column: 1; }
-.pdf .meta .fecha   { grid-column: 2; text-align: right; }
 
 .pdf .meta .direccion { grid-column: 1 / span 2; } /* ocupa toda la fila */
 .pdf .meta .rif       { grid-column: 1 / span 2; } /* ocupa toda la fila */
@@ -127,7 +125,7 @@ input:focus, textarea:focus{ border-color: var(--accent); }
   width: 70px; /* ajustá si querés más espacio */
 }
 
-.pdf table{ width:100%; border-collapse:collapse; font-size:13px; }
+.pdf table{ width:100%; border-collapse:collapse; font-size:13px; margin-top: 30px;}
 .pdf thead th{
   text-align:center; background:#f1f5f9; color:#0f172a; padding:10px; border:1px solid #000000; font-weight:700;
 }
@@ -185,7 +183,7 @@ input:focus, textarea:focus{ border-color: var(--accent); }
 }
 @media (min-width: 720px){
   .item--locked{
-    grid-template-columns: 100px 1fr 160px 160px auto; /* qty | desc | precio | total | acciones */
+    grid-template-columns: 1fr 1fr auto; /* qty | desc | precio | total | acciones */
     column-gap:12px;
   }
 }
@@ -197,8 +195,7 @@ input:focus, textarea:focus{ border-color: var(--accent); }
   color:var(--muted); opacity:.8;
   padding-right:12px;
 }
-.item--locked .cell--price,
-.item--locked .cell--total{ justify-content:flex-end; text-align:right; font-variant-numeric: tabular-nums; }
+.item--locked .cell--total{ justify-content:flex-start; text-align:left; font-variant-numeric: tabular-nums; }
 
 /* === Responsive === */
 @media (max-width: 900px){
