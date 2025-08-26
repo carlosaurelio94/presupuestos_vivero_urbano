@@ -28,10 +28,11 @@ export function renderItems(state, els) {
           <input class="input" type="number" min="0" step="0.01" value="${it.price}" data-i="${i}" data-k="price" />
         </div>
         <div class="item__actions">
-          <button class="btn primary" data-confirm="${i}" type="button">Confirmar</button>
           <button class="btn warn" data-remove="${i}" type="button">✕</button>
         </div>
       `;
+      // <button class="btn primary" data-confirm="${i}" type="button">Confirmar</button>
+
     } else {
       // ---- MODO LÍNEA CONFIRMADA ----
       wrap.className = 'item item--locked';
