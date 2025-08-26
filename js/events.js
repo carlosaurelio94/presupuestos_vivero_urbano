@@ -33,6 +33,11 @@ export function bindEvents(state, els) {
     els.pvGrand.textContent = fmtVE(total, state.currency);
   };
 
+  const onRif = (e) => {
+    state.rif = e.target.value;
+    els.pvRif.textContent = state.rif || '—';
+  };
+
   const onDate = (e) => {
     state.date = new Date(e.target.value);
     els.pvDate.textContent = dateHuman(state.date);
@@ -114,6 +119,7 @@ export function bindEvents(state, els) {
   const onSeed = () => {
     state.customer = 'Atención Angela Janji';
     state.address = 'Prados del este';
+    state.rif = 'J-219494191-1'
     state.items = [
       { qty: 2,  desc: 'Ucaros',           price: 80, confirmed: false },
       { qty: 10, desc: 'Pileas',           price: 6,  confirmed: false },
@@ -122,8 +128,10 @@ export function bindEvents(state, els) {
     ];
     document.getElementById('customer').value = state.customer;
     document.getElementById('address').value  = state.address;
+    document.getElementById('rif').value  = state.rif;
     els.pvCustomer.textContent = state.customer;
     els.pvAddress.textContent  = state.address;
+    els.pvRif.textContent  = state.rif;
     renderItems(state, els);
   };
 
@@ -132,6 +140,7 @@ export function bindEvents(state, els) {
   els.address.addEventListener('input',  onAddress);
   els.currency.addEventListener('input', onCurrency);
   els.date.addEventListener('input',     onDate);
+  els.rif.addEventListener('input',     onRif);
 
   els.items.addEventListener('input', onItemsInput);
   els.items.addEventListener('click', onItemsClick);

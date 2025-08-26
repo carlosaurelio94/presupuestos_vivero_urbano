@@ -6,6 +6,7 @@ export const els = {
   address: $('#address'),
   date: $('#date'),
   currency: $('#currency'),
+  rif: $('#rif'),
 
   items: $('#items'),
   addItem: $('#addItem'),
@@ -16,6 +17,7 @@ export const els = {
   totalBadge: $('#totalBadge'),
   pvCustomer: $('#pvCustomer'),
   pvAddress: $('#pvAddress'),
+  pvRif: $('#pvRif'),
   pvDate: $('#pvDate'),
   pvBody: $('#pvBody'),
   pvGrand: $('#pvGrand'),

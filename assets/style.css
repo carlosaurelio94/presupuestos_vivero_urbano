@@ -103,11 +103,29 @@ input:focus, textarea:focus{ border-color: var(--accent); }
 .pdf .page{ padding: 10mm 25mm 10mm 5mm; }
 
 .pdf h3{ margin:0 0 8px; font-size:16px; color:#0f172a; }
-.pdf .meta{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; font-size:13px; }
+.pdf .meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* dos columnas */
+  gap: 6px 12px;
+  margin-bottom: 14px;
+  font-size: 13px;
+}
 
-.pdf .meta .field{ display:flex; align-items:baseline; gap:6px; }
-.pdf .meta .field.pvDate > :last-child{ margin-left:auto; text-align:right; }
-.pdf .meta .label{ color:#334155; width:90px; }
+.pdf .meta .cliente { grid-column: 1; }
+.pdf .meta .fecha   { grid-column: 2; text-align: right; }
+
+.pdf .meta .direccion { grid-column: 1 / span 2; } /* ocupa toda la fila */
+.pdf .meta .rif       { grid-column: 1 / span 2; } /* ocupa toda la fila */
+
+.pdf .meta .field {
+  display: flex;
+  gap: 6px;
+}
+
+.pdf .meta .label {
+  color: #334155;
+  width: 70px; /* ajustá si querés más espacio */
+}
 
 .pdf table{ width:100%; border-collapse:collapse; font-size:13px; }
 .pdf thead th{
