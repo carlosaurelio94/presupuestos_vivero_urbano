@@ -2,7 +2,9 @@
 import { dateHuman } from './utils.js';
 
 export async function downloadPdf(state, els) {
-  const el = els.pdfTarget;
+  const el = els.pdfTarget.cloneNode(true);;
+  clone.classList.add("pdf-export"); // 👈 layout especial para exportar
+
   const filename = `Presupuesto-${state.customer || 'cliente'}-${dateHuman(state.date)}.pdf`;
   const opt = {
     margin: [8,8,8,8],
@@ -12,5 +14,5 @@ export async function downloadPdf(state, els) {
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
   await new Promise(r => setTimeout(r, 50));
-  window.html2pdf().set(opt).from(el).save();
+  window.html2pdf().set(opt).from(clone).save();
 }

@@ -147,6 +147,32 @@ input:focus, textarea:focus{ border-color: var(--accent); }
 
 .main-logo{ width:150px; height:150px; object-fit:contain; }
 
+/* === PDF EXPORT === */
+
+.pdf.pdf-export {
+  width: 210mm !important;
+  min-height: 297mm !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  overflow: hidden !important;
+}
+
+.pdf-export .main-logo {
+  width: 120px !important;
+  height: 120px !important;
+  display: block !important;
+  margin-bottom: 10mm;
+}
+
+.pdf-export table {
+  width: 100% !important;
+  table-layout: fixed !important;
+}
+
+.pdf-export .social-box {
+  grid-template-columns: repeat(4, 1fr) !important;
+}
+
 /* === Redes === */
 .social-box{
   margin-top:10mm;
