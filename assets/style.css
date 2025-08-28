@@ -100,7 +100,7 @@ input:focus, textarea:focus{ border-color: var(--accent); }
   border-radius:10px; overflow:hidden;
   box-shadow:0 12px 40px rgba(0,0,0,.35);
 }
-.pdf .page{ padding: 10mm 25mm 10mm 5mm; }
+.pdf .page{ padding: 0mm 25mm 10mm 5mm; }
 
 .pdf h3{ margin:0 0 8px; font-size:16px; color:#0f172a; }
 .pdf .meta {
@@ -127,19 +127,27 @@ input:focus, textarea:focus{ border-color: var(--accent); }
 
 .pdf table{ width:100%; border-collapse:collapse; font-size:13px; margin-top: 30px;}
 .pdf thead th{
-  text-align:center; background:#f1f5f9; color:#0f172a; padding:10px; border:1px solid #000000; font-weight:700;
+  text-align:center; background:#C3D69B; color:#0f172a; padding:10px; border:1px solid #000000; font-weight:700;
 }
-.pdf tbody td{ padding:9px 10px; border:1px solid #000000; }
+.totales {
+  border:1px solid #000000;
+}
+.text-center {
+  text-align: center;
+}
+.pdf tbody td{ padding:9px 10px; border:1px solid #000000; text-align: center;
+}
 .pdf tfoot td{ padding:10px; font-weight:800; }
 .pdf .right{ text-align:right; }
 
 .info{
-  margin-top: var(--space-4); border:1px solid #000000; border-radius:8px; padding:12px; background:#f8fafc;
-  font-size:12px; color:#334155;
+  margin-top: var(--space-4); border-radius:8px; padding:12px; background:#f8fafc;
+  font-size:12px; color:#334155; width: 50%;
 }
-.info h4{ margin:0 0 8px; font-size:12px; color:#111827; }
+.info h4{ margin:0 0 8px; font-size:12px; color:#111827; text-align: center; }
 .info ul{ margin:0; padding-left:18px; }
-.info li{ margin:4px 0; }
+.info li{ margin:4px 0;  list-style-type: "- ";
+ }
 
 .pdf-footer{ margin-top:10px; font-size:11px; color:#475569; display:flex; justify-content:space-between; }
 

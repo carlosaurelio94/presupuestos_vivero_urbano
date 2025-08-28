@@ -50,10 +50,10 @@ export function renderItems(state, els) {
     // fila de vista previa
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${it.qty}</td>
+      <td class="right">${it.qty}</td>
       <td>${it.desc}</td>
-      <td class="right">${fmtVE(it.price, state.currency)}</td>
-      <td class="right">${fmtVE(it.qty * it.price, state.currency)}</td>
+      <td>${fmtVE(it.price, state.currency)}</td>
+      <td>${fmtVE(it.qty * it.price, state.currency)}</td>
     `;
     els.pvBody.appendChild(tr);
   });
