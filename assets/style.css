@@ -244,3 +244,12 @@ input:focus, textarea:focus{ border-color: var(--accent); }
   .pdf .page{ padding:16px 12px; }
 }
 
+/* Blindaje extra para que en mobile NO se vuelva width:100% durante export */
+@media (max-width: 600px){
+  .pdf.pdf-export{
+    width: 210mm !important;
+  }
+  .pdf.pdf-export .page{
+    padding: 0mm 25mm 10mm 5mm !important; /* o el padding que quieras para el PDF */
+  }
+}
