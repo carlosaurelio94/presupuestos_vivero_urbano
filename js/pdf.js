@@ -3,7 +3,7 @@ import { dateHuman, fmtVE, toNumber } from './utils.js';
 
 const isMobile = () => /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-// Convierte una imagen (url local) a DataURL para poder incrustarla en el PDF
+// Convierte una imagen (url local) a DataURL
 async function imgToDataURL(url) {
   const res = await fetch(url, { cache: 'no-store' });
   const blob = await res.blob();
@@ -16,59 +16,77 @@ async function imgToDataURL(url) {
   });
 }
 
+// Footer (redes) — se dibuja en TODAS las páginas
+function drawFooter(doc, assets) {
+  const { gmail64, ig64, fb64, wa64 } = assets;
+
+  const W = doc.internal.pageSize.width;
+  const H = doc.internal.pageSize.height;
+
+  const marginX = 15;
+  const colW = (W - marginX * 2) / 4;
+  const iconSize = 8;
+  const y = H - 25;
+
+  const socials = [
+    { img: gmail64, text: 'urbanojardinypaisajismo@gmail.com' },
+    { img: ig64,    text: '@urbano_jardines' },
+    { img: fb64,    text: 'facebook.com/urbanojardin/' },
+    { img: wa64,    text: '(0424)1681749' },
+  ];
+
+  doc.setFontSize(8.5);
+  doc.setTextColor(17, 24, 39);
+
+  socials.forEach((s, i) => {
+    const x = marginX + i * colW;
+    const cx = x + colW / 2;
+
+    doc.addImage(s.img, 'PNG', cx - iconSize / 2, y, iconSize, iconSize);
+    doc.text(s.text, cx, y + 14, { align: 'center' });
+  });
+}
+
 export async function downloadPdf(state) {
-  // jsPDF está en window.jspdf (por el UMD)
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF('p', 'mm', 'a4');
 
-  // ====== Config de página ======
-  const W = 210;     // A4 ancho mm
-  const H = 297;     // A4 alto mm
+  // ===== Página =====
+  const W = 210;
+  const H = 297;
   const marginX = 15;
   const top = 15;
 
   const filename = `Presupuesto-${state.customer || 'cliente'}-${dateHuman(state.date)}.pdf`;
 
-  // ====== Colores / estilos (parecido a tu HTML) ======
-  const greenHeader = [195, 214, 155]; // #C3D69B
-  const textDark = [17, 24, 39];       // #111827 aprox
-  const muted = [51, 65, 85];          // #334155 aprox
-  const infoBg = [248, 250, 252];      // #f8fafc
+  // ===== Colores =====
+  const greenHeader = [195, 214, 155];
+  const textDark = [17, 24, 39];
+  const muted = [51, 65, 85];
+  const infoBg = [248, 250, 252];
   const border = [0, 0, 0];
 
-  // ====== Assets (ajustá paths si cambian) ======
-  const logoUrl = './assets/logo_urbano.jpg';
-  const iconGmail = './assets/gmail.png';
-  const iconIg = './assets/instagram.png';
-  const iconFb = './assets/facebook.png';
-  const iconWa = './assets/whatsapp.png';
-
-  // Cargar imágenes como dataURL
+  // ===== Assets =====
   const [logo64, gmail64, ig64, fb64, wa64] = await Promise.all([
-    imgToDataURL(logoUrl),
-    imgToDataURL(iconGmail),
-    imgToDataURL(iconIg),
-    imgToDataURL(iconFb),
-    imgToDataURL(iconWa),
+    imgToDataURL('./assets/logo_urbano.jpg'),
+    imgToDataURL('./assets/gmail.png'),
+    imgToDataURL('./assets/instagram.png'),
+    imgToDataURL('./assets/facebook.png'),
+    imgToDataURL('./assets/whatsapp.png'),
   ]);
 
-  // ====== Logo ======
-  // Tamaño similar al diseño actual (se ve bien en A4)
+  // ===== Logo =====
   doc.addImage(logo64, 'JPEG', marginX, top, 42, 22);
 
-  // ====== Meta: Cliente / Fecha / Dirección / RIF ======
+  // ===== Meta =====
   const yMeta = top + 35;
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(11);
   doc.setTextColor(...textDark);
 
-  // Cliente (izq)
   doc.text('Cliente:', marginX, yMeta);
   doc.text(state.customer || '—', marginX + 18, yMeta);
-
-  // Fecha (der)
-  doc.setTextColor(...textDark);
   doc.text(dateHuman(state.date), W - marginX, yMeta, { align: 'right' });
 
   let yNext = yMeta + 8;
@@ -89,31 +107,27 @@ export async function downloadPdf(state) {
     yNext += 7;
   }
 
-  // ====== Tabla ======
+  // ===== Tabla =====
   const items = state.items || [];
-  const body = items.map((it) => {
+  const body = items.map(it => {
     const qty = toNumber(it.qty);
     const price = toNumber(it.price);
-    const total = qty * price;
-
     return [
-      String(qty),
+      qty,
       it.desc || '',
       fmtVE(price, state.currency),
-      fmtVE(total, state.currency),
+      fmtVE(qty * price, state.currency)
     ];
   });
 
   const grand = items.reduce((a, it) => a + toNumber(it.qty) * toNumber(it.price), 0);
 
-  // AutoTable (plugin ya cargado por el script)
   doc.autoTable({
     startY: yNext + 8,
     head: [['Cant', 'Descripción', 'Precio', 'Total 1']],
     body,
     theme: 'grid',
     styles: {
-      font: 'helvetica',
       fontSize: 10,
       textColor: textDark,
       halign: 'center',
@@ -125,105 +139,77 @@ export async function downloadPdf(state) {
       fillColor: greenHeader,
       textColor: textDark,
       fontStyle: 'bold',
-      lineColor: border,
-      lineWidth: 0.2,
     },
     columnStyles: {
-      0: { cellWidth: 20 },  // Cant
-      1: { cellWidth: 90 },  // Descripción
-      2: { cellWidth: 35 },  // Precio
-      3: { cellWidth: 35 },  // Total
+      0: { cellWidth: 20 },
+      1: { cellWidth: 90 },
+      2: { cellWidth: 35 },
+      3: { cellWidth: 35 },
     },
   });
 
-  // Total (como tu fila final)
-  const yAfterTable = doc.lastAutoTable.finalY + 6;
+  // ===== TOTAL =====
+  let yAfterTable = doc.lastAutoTable.finalY + 6;
+  const INFO_BLOCK_HEIGHT = 70;
 
-  // Dibujar “TOTAL” y monto con cajitas tipo tu tfoot
-  const boxWLabel = 35;
-  const boxWValue = 35;
+  if (yAfterTable + INFO_BLOCK_HEIGHT > H - 15) {
+    doc.addPage();
+    yAfterTable = 20;
+  }
+
+  const boxW = 35;
   const boxH = 10;
-  const xTotalLabel = W - marginX - boxWLabel - boxWValue;
-  const xTotalValue = W - marginX - boxWValue;
+  const xLabel = W - marginX - boxW * 2;
+  const xValue = W - marginX - boxW;
 
   doc.setDrawColor(...border);
-  doc.setLineWidth(0.2);
+  doc.rect(xLabel, yAfterTable, boxW, boxH);
+  doc.rect(xValue, yAfterTable, boxW, boxH);
 
-  // Caja label
-  doc.rect(xTotalLabel, yAfterTable, boxWLabel, boxH);
-  // Caja valor
-  doc.rect(xTotalValue, yAfterTable, boxWValue, boxH);
-
+  doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
-  doc.setFont('helvetica', 'bold');
-  doc.text('TOTAL', xTotalLabel + boxWLabel / 2, yAfterTable + 6.7, { align: 'center' });
+  doc.text('TOTAL', xLabel + boxW / 2, yAfterTable + 6.7, { align: 'center' });
+  doc.text(fmtVE(grand, state.currency), xValue + boxW / 2, yAfterTable + 6.7, { align: 'center' });
 
-  doc.setFont('helvetica', 'bold');
-  doc.text(fmtVE(grand, state.currency), xTotalValue + boxWValue / 2, yAfterTable + 6.7, { align: 'center' });
-
-  // ====== Info box ======
-  const infoY = yAfterTable + 18;
+  // ===== Información =====
   const infoX = marginX;
+  const infoY = yAfterTable + 12;
   const infoW = 110;
   const infoH = 42;
 
   doc.setFillColor(...infoBg);
   doc.roundedRect(infoX, infoY, infoW, infoH, 3, 3, 'F');
 
-  doc.setFont('helvetica', 'bold');
   doc.setFontSize(11);
-  doc.setTextColor(...textDark);
   doc.text('Información', infoX + infoW / 2, infoY + 8, { align: 'center' });
 
-  doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
   doc.setTextColor(...muted);
 
-  const infoLines = [
+  const lines = [
     '• El siguiente presupuesto no incluye IVA.',
-    '• Al momento de aprobar el presupuesto debe cancelar el',
-    '  80% del monto total y el 20% restante al momento de',
-    '  culminar el trabajo.',
-    '• Métodos de pago: aceptamos efectivo en divisa,',
-    '  transferencias nacionales como Banesco, Provincial,',
-    '  Mercantil, Venezolano de Crédito y Banco de Venezuela.'
+    '• Al aprobar el presupuesto debe cancelar el 80% del total y',
+    '  el 20% restante al culminar el trabajo.',
+    '• Métodos de pago: efectivo en divisa y transferencias',
+    '  (Banesco, Provincial, Mercantil, Venezolano de Crédito, BDV).'
   ];
 
-  let yy = infoY + 16;
-  for (const line of infoLines) {
-    doc.text(line, infoX + 6, yy);
-    yy += 4.5;
-  }
-
-  // ====== Redes (iconos + texto) ======
-  // Similar a tu “social-box” (4 columnas)
-  const socialY = H - 32;         // cerca del fondo
-  const colW = (W - marginX * 2) / 4;
-  const iconSize = 8;
-
-  const socials = [
-    { img: gmail64, text1: 'urbanojardinypaisajismo@gmail.com' },
-    { img: ig64,    text1: '@urbano_jardines' },
-    { img: fb64,    text1: 'facebook.com/urbanojardin/' },
-    { img: wa64,    text1: '(0424)1681749' },
-  ];
-
-  doc.setFontSize(8.5);
-  doc.setTextColor(...textDark);
-
-  socials.forEach((s, i) => {
-    const x = marginX + i * colW;
-    const centerX = x + colW / 2;
-
-    doc.addImage(s.img, 'PNG', centerX - iconSize / 2, socialY, iconSize, iconSize);
-    doc.text(s.text1, centerX, socialY + 14, { align: 'center' });
+  let ly = infoY + 16;
+  lines.forEach(l => {
+    doc.text(l, infoX + 6, ly);
+    ly += 4.5;
   });
 
-  // ====== Guardar / abrir ======
+  // ===== FOOTER EN TODAS LAS PÁGINAS =====
+  const pages = doc.getNumberOfPages();
+  for (let i = 1; i <= pages; i++) {
+    doc.setPage(i);
+    drawFooter(doc, { gmail64, ig64, fb64, wa64 });
+  }
+
+  // ===== Guardar / Abrir =====
   if (isMobile()) {
-    // iOS/Android: suele ser mejor abrirlo
-    const url = doc.output('bloburl');
-    window.open(url, '_blank');
+    window.open(doc.output('bloburl'), '_blank');
   } else {
     doc.save(filename);
   }
