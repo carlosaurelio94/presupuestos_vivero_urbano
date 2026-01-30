@@ -18,5 +18,5 @@ renderItems(state, els);
 if (!state.address) els.pvAddress.parentElement.style.display = "none";
 if (!state.rif) els.pvRif.parentElement.style.display = "none";
 
-els.download.addEventListener('click', () => downloadPdf(state, els));
-els.download2.addEventListener('click', () => downloadPdf(state, els));
+els.download.addEventListener('click', () => downloadPdf(state));
+els.download2.addEventListener('click', () => downloadPdf(state));
