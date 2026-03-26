@@ -5,14 +5,77 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Presupuesto · Urbano</title>
 
-  <!-- Librería para generar PDF (html2canvas + jsPDF) -->
   <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
 
   <link rel="shortcut icon" href="./assets/images.png" type="image/x-icon">
-
-  <!-- Estilos -->
   <link rel="stylesheet" href="./assets/style.css" />
+
+  <style>
+    /* ===== MODAL IMPORTAR TEXTO ===== */
+    #importModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+    }
+    .modal-box {
+      position: relative;
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      width: min(500px, 92vw);
+      box-shadow: 0 8px 32px rgba(0,0,0,.18);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .modal-box h3 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+    .modal-hint {
+      margin: 0;
+      font-size: .82rem;
+      color: #64748b;
+      line-height: 1.6;
+    }
+    .modal-hint code {
+      background: #f1f5f9;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: .8rem;
+    }
+    .import-textarea {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: .95rem;
+      font-family: monospace;
+      resize: vertical;
+    }
+    .import-preview {
+      margin: 0;
+      font-size: .8rem;
+      color: #16a34a;
+      min-height: 1.2em;
+      word-break: break-word;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -50,7 +113,11 @@
 
       <div class="header-items">
         <h2>Ítems</h2>
-        <button class="btn" id="addItem" type="button">➕ Agregar ítem</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <!-- ✨ NUEVO BOTÓN -->
+          <button class="btn" id="importText" type="button">📝 Importar texto</button>
+          <button class="btn" id="addItem" type="button">➕ Agregar ítem</button>
+        </div>
       </div>
 
       <div id="items" class="items"></div>
@@ -110,12 +177,11 @@
             <div class="info">
               <h4>Información</h4>
               <ul>
-                <li >El siguiente presupuesto no incluye IVA.</li>
+                <li>El siguiente presupuesto no incluye IVA.</li>
                 <li>Al momento de aprobar el presupuesto debe cancelar el 80% del monto total y el 20% restante al momento de culminar el trabajo.</li>
                 <li>Métodos de pago: aceptamos efectivo en divisa, transferencias nacionales como Banesco, Provincial, Mercantil, Venezolano de Crédito y Banco de Venezuela.</li>
               </ul>
             </div>
-            <!-- === BLOQUE REDES SOCIALES (pegar dentro de #pdfTarget .page) === -->
             <div class="social-box">
               <div class="social-cell">
                 <img class="social-icon" src="./assets/gmail.png" alt="gmail">
@@ -143,7 +209,6 @@
     </aside>
   </div>
 
-  <!-- App -->
   <script type="module" src="./js/main.js"></script>
 </body>
 </html>

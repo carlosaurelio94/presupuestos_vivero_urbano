@@ -1,14 +1,15 @@
 // events.js
-import { dateHuman, fmtVE, toNumber } from './utils.js';
+import { dateHuman, fmtVE, toNumber, parseItemsText } from './utils.js';
 import { renderItems } from './render.js';
 
-let wired = false; // 👈 evita registrar listeners 2 veces
+let wired = false;
 
 export function bindEvents(state, els) {
-  if (wired) return;   // 👈 ya está enlazado
+  if (wired) return;
   wired = true;
 
-  // ------- Handlers nombrados (para depurar/remover si hiciera falta) -------
+  // ------- Handlers del formulario principal -------
+
   const onCustomer = (e) => {
     state.customer = e.target.value;
     els.pvCustomer.textContent = state.customer || '—';
@@ -27,7 +28,6 @@ export function bindEvents(state, els) {
 
   const onCurrency = (e) => {
     state.currency = e.target.value || ' $';
-    // Re-formatear sin re-render global
     [...els.pvBody.rows].forEach((row, idx) => {
       const it = state.items[idx];
       if (!it) return;
@@ -52,10 +52,10 @@ export function bindEvents(state, els) {
 
   const onDate = (e) => {
     const [year, month, day] = e.target.value.split('-').map(Number);
-    state.date = new Date(year, month - 1, day); // 👈 construyo la fecha en local
+    state.date = new Date(year, month - 1, day);
     els.pvDate.textContent = dateHuman(state.date);
   };
-  // Edición de inputs dentro de la lista (sin re-render global)
+
   const onItemsInput = (e) => {
     const input = e.target;
     if (!input.matches('input[data-i][data-k]')) return;
@@ -63,8 +63,7 @@ export function bindEvents(state, els) {
     const i = Number(input.getAttribute('data-i'));
     const k = input.getAttribute('data-k');
     if (!Number.isInteger(i) || i < 0 || i >= state.items.length) return;
-
-    if (state.items[i].confirmed) return; // no editar si está confirmado
+    if (state.items[i].confirmed) return;
 
     if (k === 'desc') {
       state.items[i].desc = input.value;
@@ -85,14 +84,13 @@ export function bindEvents(state, els) {
     }
   };
 
-  // Clicks dentro de la lista: Confirmar / Eliminar
   const onItemsClick = (e) => {
     const btnConfirm = e.target.closest('button[data-confirm]');
     if (btnConfirm) {
       const i = Number(btnConfirm.getAttribute('data-confirm'));
       if (!Number.isInteger(i) || i < 0 || i >= state.items.length) return;
       state.items[i].confirmed = true;
-      renderItems(state, els); // cambia estructura
+      renderItems(state, els);
       return;
     }
 
@@ -100,8 +98,8 @@ export function bindEvents(state, els) {
     if (btnUnconfirm) {
       const i = Number(btnUnconfirm.getAttribute('data-unconfirm'));
       if (!Number.isInteger(i) || i < 0 || i >= state.items.length) return;
-      state.items[i].confirmed = false;   // vuelve a modo formulario
-      renderItems(state, els);            // re-dibuja con inputs cargados
+      state.items[i].confirmed = false;
+      renderItems(state, els);
       return;
     }
 
@@ -109,16 +107,8 @@ export function bindEvents(state, els) {
     if (btnRemove) {
       const i = Number(btnRemove.getAttribute('data-remove'));
       if (!Number.isInteger(i) || i < 0 || i >= state.items.length) return;
-
       state.items.splice(i, 1);
-
-      // Si no queda ninguno, dejar la lista vacía (o un item inicial editable si preferís)
-      // Opción A: vacía
-      // if (!state.items.length) { /* nada */ }
-
-      // Opción B: dejar 1 ítem editable (como antes)
       if (!state.items.length) state.items = [{ qty: 1, desc: '', price: 0, confirmed: false }];
-
       renderItems(state, els);
     }
   };
@@ -131,7 +121,7 @@ export function bindEvents(state, els) {
   const onSeed = () => {
     state.customer = 'Atención Angela Janji';
     state.address = 'Prados del este';
-    state.rif = 'J-219494191-1'
+    state.rif = 'J-219494191-1';
     state.items = [
       { qty: 2,  desc: 'Ucaros',           price: 80, confirmed: false },
       { qty: 10, desc: 'Pileas',           price: 6,  confirmed: false },
@@ -140,23 +130,107 @@ export function bindEvents(state, els) {
     ];
     document.getElementById('customer').value = state.customer;
     document.getElementById('address').value  = state.address;
-    document.getElementById('rif').value  = state.rif;
+    document.getElementById('rif').value       = state.rif;
     els.pvCustomer.textContent = state.customer;
     els.pvAddress.textContent  = state.address;
-    els.pvRif.textContent  = state.rif;
+    els.pvRif.textContent      = state.rif;
     renderItems(state, els);
   };
 
-  // ------- Registro único de listeners -------
+  // ------- Modal "Importar texto" -------
+
+  const openImportModal = () => {
+    // Si ya existe, solo mostrarlo
+    let modal = document.getElementById('importModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'importModal';
+      modal.innerHTML = `
+        <div class="modal-backdrop"></div>
+        <div class="modal-box">
+          <h3>Importar ítems desde texto</h3>
+          <p class="modal-hint">
+            Una línea por ítem. Formatos aceptados:<br>
+            <code>cantidad descripción precio</code> → <code>1 ficus 150</code><br>
+            <code>descripción precio</code> → <code>ficus 150</code> (qty = 1)<br>
+            <code>cantidad descripción</code> → <code>3 orquídea</code> (precio = 0)<br>
+            También podés usar comas: <code>1, ficus, 150</code>
+          </p>
+          <textarea
+            id="importTextarea"
+            class="import-textarea"
+            placeholder="1 ficus 150&#10;2 orquídea 20&#10;transporte 50"
+            rows="8"
+          ></textarea>
+          <p id="importPreview" class="import-preview"></p>
+          <div class="modal-actions">
+            <button class="btn" id="importCancel" type="button">Cancelar</button>
+            <button class="btn primary" id="importConfirm" type="button">Agregar ítems</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+
+      // Preview en tiempo real
+      document.getElementById('importTextarea').addEventListener('input', (e) => {
+        const parsed = parseItemsText(e.target.value);
+        const prev = document.getElementById('importPreview');
+        if (!parsed.length) { prev.textContent = ''; return; }
+        prev.textContent = `${parsed.length} ítem(s) detectado(s): ` +
+          parsed.map(it => `${it.qty}× ${it.desc || '?'} = ${it.price}`).join(' | ');
+      });
+
+      document.getElementById('importCancel').addEventListener('click', closeImportModal);
+      document.getElementById('importConfirm').addEventListener('click', confirmImport);
+      modal.querySelector('.modal-backdrop').addEventListener('click', closeImportModal);
+    }
+
+    // Limpiar textarea y preview cada vez que se abre
+    document.getElementById('importTextarea').value = '';
+    document.getElementById('importPreview').textContent = '';
+    modal.style.display = 'flex';
+  };
+
+  const closeImportModal = () => {
+    const modal = document.getElementById('importModal');
+    if (modal) modal.style.display = 'none';
+  };
+
+  const confirmImport = () => {
+    const raw = document.getElementById('importTextarea').value;
+    const newItems = parseItemsText(raw);
+    if (!newItems.length) return;
+
+    // Reemplazar el ítem vacío inicial si es el único y está vacío
+    const hasOnlyBlank =
+      state.items.length === 1 &&
+      !state.items[0].desc &&
+      state.items[0].price === 0;
+
+    if (hasOnlyBlank) {
+      state.items = newItems;
+    } else {
+      state.items.push(...newItems);
+    }
+
+    renderItems(state, els);
+    closeImportModal();
+  };
+
+  // ------- Registro de listeners -------
   els.customer.addEventListener('input', onCustomer);
   els.address.addEventListener('input',  onAddress);
   els.currency.addEventListener('input', onCurrency);
   els.date.addEventListener('input',     onDate);
-  els.rif.addEventListener('input',     onRif);
+  els.rif.addEventListener('input',      onRif);
 
   els.items.addEventListener('input', onItemsInput);
   els.items.addEventListener('click', onItemsClick);
 
   els.addItem.addEventListener('click', onAddItem);
   els.seed.addEventListener('click',    onSeed);
+
+  // Botón importar (se agrega dinámicamente si no existe en el HTML)
+  const importBtn = document.getElementById('importText');
+  if (importBtn) importBtn.addEventListener('click', openImportModal);
 }
