@@ -8,8 +8,6 @@ export function bindEvents(state, els) {
   if (wired) return;
   wired = true;
 
-  // ------- Handlers del formulario principal -------
-
   const onCustomer = (e) => {
     state.customer = e.target.value;
     els.pvCustomer.textContent = state.customer || '—';
@@ -19,11 +17,12 @@ export function bindEvents(state, els) {
     state.address = e.target.value.trim();
     if (state.address) {
       els.pvAddress.textContent = state.address;
-      els.pvAddress.parentElement.style.display = "flex";
+      els.pvAddress.parentElement.style.display = 'flex';
     } else {
-      els.pvAddress.textContent = "";
-      els.pvAddress.parentElement.style.display = "none";
+      els.pvAddress.textContent = '';
+      els.pvAddress.parentElement.style.display = 'none';
     }
+    renderItems(state, els); // re-render para actualizar la vista previa
   };
 
   const onCurrency = (e) => {
@@ -37,29 +36,37 @@ export function bindEvents(state, els) {
     const total = state.items.reduce((a, it) => a + toNumber(it.qty) * toNumber(it.price), 0);
     els.totalBadge.textContent = `Total: ${fmtVE(total, state.currency)}`;
     els.pvGrand.textContent = fmtVE(total, state.currency);
+    renderItems(state, els);
   };
 
   const onRif = (e) => {
     state.rif = e.target.value.trim();
     if (state.rif) {
       els.pvRif.textContent = state.rif;
-      els.pvRif.parentElement.style.display = "flex";
+      els.pvRif.parentElement.style.display = 'flex';
     } else {
-      els.pvRif.textContent = "";
-      els.pvRif.parentElement.style.display = "none";
+      els.pvRif.textContent = '';
+      els.pvRif.parentElement.style.display = 'none';
     }
+    renderItems(state, els);
   };
 
   const onDate = (e) => {
     const [year, month, day] = e.target.value.split('-').map(Number);
     state.date = new Date(year, month - 1, day);
     els.pvDate.textContent = dateHuman(state.date);
+    renderItems(state, els);
+  };
+
+  // Textarea "Información"
+  const onInfo = (e) => {
+    state.info = e.target.value;
+    renderItems(state, els);
   };
 
   const onItemsInput = (e) => {
     const input = e.target;
     if (!input.matches('input[data-i][data-k]')) return;
-
     const i = Number(input.getAttribute('data-i'));
     const k = input.getAttribute('data-k');
     if (!Number.isInteger(i) || i < 0 || i >= state.items.length) return;
@@ -82,6 +89,7 @@ export function bindEvents(state, els) {
       els.totalBadge.textContent = `Total: ${fmtVE(total, state.currency)}`;
       els.pvGrand.textContent = fmtVE(total, state.currency);
     }
+    renderItems(state, els);
   };
 
   const onItemsClick = (e) => {
@@ -93,7 +101,6 @@ export function bindEvents(state, els) {
       renderItems(state, els);
       return;
     }
-
     const btnUnconfirm = e.target.closest('button[data-unconfirm]');
     if (btnUnconfirm) {
       const i = Number(btnUnconfirm.getAttribute('data-unconfirm'));
@@ -102,7 +109,6 @@ export function bindEvents(state, els) {
       renderItems(state, els);
       return;
     }
-
     const btnRemove = e.target.closest('button[data-remove]');
     if (btnRemove) {
       const i = Number(btnRemove.getAttribute('data-remove'));
@@ -120,27 +126,25 @@ export function bindEvents(state, els) {
 
   const onSeed = () => {
     state.customer = 'Atención Angela Janji';
-    state.address = 'Prados del este';
-    state.rif = 'J-219494191-1';
+    state.address  = 'Prados del este';
+    state.rif      = 'J-219494191-1';
     state.items = [
-      { qty: 2,  desc: 'Ucaros',           price: 80, confirmed: false },
+      { qty: 2,  desc: 'Ucaros',          price: 80, confirmed: false },
       { qty: 10, desc: 'Pileas',           price: 6,  confirmed: false },
       { qty: 3,  desc: 'Sacos de tierra',  price: 6,  confirmed: false },
       { qty: 1,  desc: 'Transporte',       price: 20, confirmed: false },
     ];
     document.getElementById('customer').value = state.customer;
     document.getElementById('address').value  = state.address;
-    document.getElementById('rif').value       = state.rif;
+    document.getElementById('rif').value      = state.rif;
     els.pvCustomer.textContent = state.customer;
     els.pvAddress.textContent  = state.address;
     els.pvRif.textContent      = state.rif;
     renderItems(state, els);
   };
 
-  // ------- Modal "Importar texto" -------
-
+  // ------- Modal Importar texto -------
   const openImportModal = () => {
-    // Si ya existe, solo mostrarlo
     let modal = document.getElementById('importModal');
     if (!modal) {
       modal = document.createElement('div');
@@ -171,7 +175,6 @@ export function bindEvents(state, els) {
       `;
       document.body.appendChild(modal);
 
-      // Preview en tiempo real
       document.getElementById('importTextarea').addEventListener('input', (e) => {
         const parsed = parseItemsText(e.target.value);
         const prev = document.getElementById('importPreview');
@@ -185,7 +188,6 @@ export function bindEvents(state, els) {
       modal.querySelector('.modal-backdrop').addEventListener('click', closeImportModal);
     }
 
-    // Limpiar textarea y preview cada vez que se abre
     document.getElementById('importTextarea').value = '';
     document.getElementById('importPreview').textContent = '';
     modal.style.display = 'flex';
@@ -200,19 +202,12 @@ export function bindEvents(state, els) {
     const raw = document.getElementById('importTextarea').value;
     const newItems = parseItemsText(raw);
     if (!newItems.length) return;
-
-    // Reemplazar el ítem vacío inicial si es el único y está vacío
-    const hasOnlyBlank =
-      state.items.length === 1 &&
-      !state.items[0].desc &&
-      state.items[0].price === 0;
-
+    const hasOnlyBlank = state.items.length === 1 && !state.items[0].desc && state.items[0].price === 0;
     if (hasOnlyBlank) {
       state.items = newItems;
     } else {
       state.items.push(...newItems);
     }
-
     renderItems(state, els);
     closeImportModal();
   };
@@ -224,13 +219,16 @@ export function bindEvents(state, els) {
   els.date.addEventListener('input',     onDate);
   els.rif.addEventListener('input',      onRif);
 
+  // Textarea info
+  const infoTextEl = document.getElementById('infoText');
+  if (infoTextEl) infoTextEl.addEventListener('input', onInfo);
+
   els.items.addEventListener('input', onItemsInput);
   els.items.addEventListener('click', onItemsClick);
 
   els.addItem.addEventListener('click', onAddItem);
   els.seed.addEventListener('click',    onSeed);
 
-  // Botón importar (se agrega dinámicamente si no existe en el HTML)
   const importBtn = document.getElementById('importText');
   if (importBtn) importBtn.addEventListener('click', openImportModal);
 }

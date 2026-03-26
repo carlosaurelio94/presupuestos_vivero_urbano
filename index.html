@@ -12,7 +12,52 @@
   <link rel="stylesheet" href="./assets/style.css" />
 
   <style>
-    /* ===== PAGINADOR VISTA PREVIA ===== */
+    /* ── Cambio 2: dos columnas con scroll independiente ── */
+    html, body { height: 100%; margin: 0; }
+
+    .container {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;         /* el scroll lo manejan las columnas hijas */
+      gap: 0;
+    }
+
+    /* Columna formulario */
+    .generador {
+      flex: 0 0 480px;
+      min-width: 320px;
+      max-width: 520px;
+      height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 24px 20px;
+      box-sizing: border-box;
+      border-right: 1px solid #e2e8f0;
+    }
+
+    /* Columna vista previa */
+    .preview-wrap {
+      flex: 1 1 0;
+      height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 24px 20px;
+      box-sizing: border-box;
+    }
+
+    /* Cambio 3: la .page (hoja del PDF) queda contenida dentro de .preview */
+    .preview .pdf {
+      overflow: visible; /* el scroll ya lo da .preview-wrap */
+    }
+
+    /* ── Cambio 1: social-box NO al fondo — flujo normal ── */
+    /* (ya viene en el HTML/render.js, solo nos aseguramos de que no tenga position:absolute) */
+    .social-box {
+      position: static !important;
+      margin-top: 14px;
+    }
+
+    /* ── Paginador ── */
     #previewNav {
       display: none;
       align-items: center;
@@ -20,40 +65,82 @@
       gap: 12px;
       margin-bottom: 10px;
     }
-    #reviewNav button {
-      background: none;
-      border: 1px solid #cbd5e1;
-      border-radius: 6px;
-      padding: 4px 14px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background .15s;
-      line-height: 1.6;
-    }
     #previewNav button {
       background: none;
       border: 1px solid #cbd5e1;
       border-radius: 6px;
-      padding: 4px 14px;
-      font-size: 1rem;
+      padding: 4px 16px;
+      font-size: 1.1rem;
       cursor: pointer;
       transition: background .15s;
       line-height: 1.6;
     }
     #previewNav button:hover:not(:disabled) { background: #f1f5f9; }
     #previewNav button:disabled { opacity: .35; cursor: default; }
-    #pvPageCount { font-size: .85rem; color: #64748b; min-width: 48px; text-align: center; }
+    #pvPageCount { font-size: .85rem; color: #475569; min-width: 48px; text-align: center; font-weight: 500; }
 
     .page-continuation-header {
       font-size: .85rem;
-      color: #64748b;
+      color: #475569;
       margin-bottom: 8px;
       padding-bottom: 6px;
       border-bottom: 1px solid #e2e8f0;
       overflow: hidden;
     }
 
-    /* ===== MODAL IMPORTAR TEXTO ===== */
+    /* ── Cambio 5: textarea Información ── */
+    .info-edit-wrap {
+      margin-top: 18px;
+    }
+    .info-edit-wrap label {
+      display: block;
+      font-weight: 600;
+      font-size: .85rem;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+    #infoText {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: .88rem;
+      color: #1e293b;
+      line-height: 1.55;
+      resize: vertical;
+      min-height: 100px;
+      font-family: inherit;
+    }
+    #infoText:focus {
+      outline: none;
+      border-color: #94a3b8;
+    }
+
+    /* ── Cambio 4: textos del modal más oscuros ── */
+    .modal-hint {
+      margin: 0;
+      font-size: .83rem;
+      color: #1e293b;        /* antes era #64748b — ahora mucho más oscuro */
+      line-height: 1.65;
+    }
+    .modal-hint code {
+      background: #e2e8f0;
+      color: #0f172a;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: .8rem;
+    }
+    .import-preview {
+      margin: 0;
+      font-size: .82rem;
+      color: #15803d;
+      min-height: 1.2em;
+      word-break: break-word;
+      font-weight: 500;
+    }
+
+    /* ── Modal base ── */
     #importModal {
       display: none;
       position: fixed;
@@ -74,20 +161,26 @@
       flex-direction: column;
       gap: 12px;
     }
-    .modal-box h3 { margin: 0; font-size: 1.1rem; }
-    .modal-hint { margin: 0; font-size: .82rem; color: #64748b; line-height: 1.6; }
-    .modal-hint code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-size: .8rem; }
+    .modal-box h3 { margin: 0; font-size: 1.1rem; color: #0f172a; }
     .import-textarea {
-      width: 100%; box-sizing: border-box;
-      border: 1px solid #cbd5e1; border-radius: 8px;
-      padding: 10px; font-size: .95rem; font-family: monospace; resize: vertical;
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #94a3b8;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: .95rem;
+      font-family: monospace;
+      color: #0f172a;
+      background: #f8fafc;
+      resize: vertical;
     }
-    .import-preview { margin: 0; font-size: .8rem; color: #16a34a; min-height: 1.2em; word-break: break-word; }
     .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
   </style>
 </head>
 <body>
   <div class="container">
+
+    <!-- ══ COLUMNA IZQUIERDA: Formulario ══ -->
     <section class="card generador">
       <h1>Generador de Presupuestos</h1>
       <h2>Formulario</h2>
@@ -120,6 +213,14 @@
         </div>
       </div>
 
+      <!-- Cambio 5: textarea editable para el bloque Información -->
+      <div class="info-edit-wrap">
+        <label for="infoText">Texto de información (aparece al pie del presupuesto)</label>
+        <textarea id="infoText" rows="5">El siguiente presupuesto no incluye IVA.
+Al momento de aprobar el presupuesto debe cancelar el 80% del monto total y el 20% restante al momento de culminar el trabajo.
+Métodos de pago: aceptamos efectivo en divisa, transferencias nacionales como Banesco, Provincial, Mercantil, Venezolano de Crédito y Banco de Venezuela.</textarea>
+      </div>
+
       <div class="header-items">
         <h2>Ítems</h2>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -141,23 +242,24 @@
       </div>
     </section>
 
+    <!-- ══ COLUMNA DERECHA: Vista previa ══ -->
     <aside class="preview-wrap">
       <div class="card preview">
         <h2>Vista previa</h2>
 
-        <!-- Paginador ◀ 1/2 ▶ -->
+        <!-- Paginador ← 1/2 → -->
         <div id="previewNav">
           <button id="pvPrev" type="button">&#8592;</button>
           <span id="pvPageCount">1 / 1</span>
           <button id="pvNext" type="button">&#8594;</button>
         </div>
 
-        <!-- Páginas renderizadas por render.js -->
+        <!-- Páginas renderizadas dinámicamente por render.js -->
         <div id="pdfTarget" class="pdf">
           <div id="previewPagesContainer"></div>
         </div>
 
-        <!-- Elementos "fantasma" para compatibilidad con events.js (ocultos) -->
+        <!-- Elementos fantasma para compatibilidad con events.js (ocultos) -->
         <div style="display:none">
           <span id="pvCustomer">—</span>
           <span id="pvAddress"></span>
@@ -172,6 +274,7 @@
         </div>
       </div>
     </aside>
+
   </div>
 
   <script type="module" src="./js/main.js"></script>

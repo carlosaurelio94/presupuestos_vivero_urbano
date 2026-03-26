@@ -1,7 +1,6 @@
 // render.js — dibuja los ítems, totales y pagina la vista previa
 import { fmtVE, toNumber } from './utils.js';
 
-// Filas máximas por página en la vista previa (aprox, igual que el PDF)
 const ROWS_PER_PAGE = 18;
 
 export function renderItems(state, els) {
@@ -44,7 +43,7 @@ export function renderItems(state, els) {
     }
     els.items.appendChild(wrap);
 
-    // fila de vista previa (se usa para calcular el total; las páginas se arman abajo)
+    // fila fantasma para pvBody (necesario para events.js)
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td class="right">${it.qty}</td>
@@ -59,26 +58,23 @@ export function renderItems(state, els) {
   els.totalBadge.textContent = `Total: ${fmtVE(total, state.currency)}`;
   els.pvGrand.textContent = fmtVE(total, state.currency);
 
-  // Re-paginar la vista previa
   renderPreviewPages(state, els);
 }
 
-// ─── Vista previa paginada ───────────────────────────────────────────────────
+// ─── Vista previa paginada ────────────────────────────────────────────────────
 
 function renderPreviewPages(state, els) {
   const container = document.getElementById('previewPagesContainer');
-  if (!container) return; // si el HTML aún no tiene el nuevo markup, salir
+  if (!container) return;
 
   const total = state.items.reduce((a, it) => a + toNumber(it.qty) * toNumber(it.price), 0);
 
-  // Dividir ítems en páginas
   const pages = [];
   for (let i = 0; i < state.items.length; i += ROWS_PER_PAGE) {
     pages.push(state.items.slice(i, i + ROWS_PER_PAGE));
   }
-  if (pages.length === 0) pages.push([]); // al menos una página vacía
+  if (pages.length === 0) pages.push([]);
 
-  // Renderizar cada página como un .page
   container.innerHTML = '';
 
   pages.forEach((pageItems, pageIdx) => {
@@ -87,31 +83,29 @@ function renderPreviewPages(state, els) {
     page.className = 'page';
     page.dataset.page = pageIdx;
 
-    // Logo + meta solo en la primera página
     const metaBlock = pageIdx === 0 ? `
       <img class="main-logo" src="./assets/logo_urbano.jpg" alt="">
       <div class="meta">
         <div class="field cliente">
           <div class="label">Cliente:</div>
-          <div id="pvCustomer2">${els.pvCustomer.textContent}</div>
+          <div>${els.pvCustomer.textContent}</div>
         </div>
         <div class="field fecha right">
-          <div id="pvDate2">${els.pvDate.textContent}</div>
+          <div>${els.pvDate.textContent}</div>
         </div>
         <div class="field direccion" style="${state.address ? '' : 'display:none'}">
           <div class="label">Dirección:</div>
-          <div id="pvAddress2">${state.address || ''}</div>
+          <div>${state.address || ''}</div>
         </div>
         <div class="field rif" style="${state.rif ? '' : 'display:none'}">
           <div class="label">RIF:</div>
-          <div id="pvRif2">${state.rif || ''}</div>
+          <div>${state.rif || ''}</div>
         </div>
       </div>` : `<div class="page-continuation-header">
         <span class="label">Cliente:</span> ${els.pvCustomer.textContent}
         <span style="float:right">${els.pvDate.textContent}</span>
       </div>`;
 
-    // Tabla de ítems
     const rows = pageItems.map(it => `
       <tr>
         <td class="right">${it.qty}</td>
@@ -120,15 +114,28 @@ function renderPreviewPages(state, els) {
         <td>${fmtVE(it.qty * it.price, state.currency)}</td>
       </tr>`).join('');
 
-    // Footer solo en la última página
+    const totalFoot = isLast ? `
+      <tfoot>
+        <tr>
+          <td></td><td></td>
+          <td class="text-center totales">TOTAL</td>
+          <td class="text-center totales">${fmtVE(total, state.currency)}</td>
+        </tr>
+      </tfoot>` : '';
+
+    // Info como lista de bullets a partir del texto (cada línea = un bullet)
+    const infoLines = (state.info || '')
+      .split('\n')
+      .map(l => l.trim())
+      .filter(Boolean)
+      .map(l => `<li>${l}</li>`)
+      .join('');
+
+    // Social box + info solo en la última página, justo debajo del bloque info
     const footerBlock = isLast ? `
       <div class="info">
         <h4>Información</h4>
-        <ul>
-          <li>El siguiente presupuesto no incluye IVA.</li>
-          <li>Al momento de aprobar el presupuesto debe cancelar el 80% del monto total y el 20% restante al momento de culminar el trabajo.</li>
-          <li>Métodos de pago: aceptamos efectivo en divisa, transferencias nacionales como Banesco, Provincial, Mercantil, Venezolano de Crédito y Banco de Venezuela.</li>
-        </ul>
+        <ul>${infoLines}</ul>
       </div>
       <div class="social-box">
         <div class="social-cell">
@@ -148,16 +155,6 @@ function renderPreviewPages(state, els) {
           <span class="social-text">(0424)1681749</span>
         </div>
       </div>` : '';
-
-    // Total solo en la última página
-    const totalFoot = isLast ? `
-      <tfoot>
-        <tr>
-          <td></td><td></td>
-          <td class="text-center totales">TOTAL</td>
-          <td class="text-center totales">${fmtVE(total, state.currency)}</td>
-        </tr>
-      </tfoot>` : '';
 
     page.innerHTML = `
       ${metaBlock}
@@ -179,11 +176,10 @@ function renderPreviewPages(state, els) {
     container.appendChild(page);
   });
 
-  // Actualizar el paginador
   updatePaginator(pages.length);
 }
 
-// ─── Paginador (botones ◀ ▶ y contador) ─────────────────────────────────────
+// ─── Paginador ────────────────────────────────────────────────────────────────
 
 let currentPage = 0;
 
@@ -191,15 +187,7 @@ function updatePaginator(total) {
   const nav = document.getElementById('previewNav');
   if (!nav) return;
 
-  if (total <= 1) {
-    nav.style.display = 'none';
-    showPage(0);
-    return;
-  }
-
-  nav.style.display = 'flex';
-
-  // Asegurarse que currentPage no quede fuera de rango al borrar ítems
+  nav.style.display = total <= 1 ? 'none' : 'flex';
   if (currentPage >= total) currentPage = total - 1;
 
   document.getElementById('pvPageCount').textContent = `${currentPage + 1} / ${total}`;
@@ -211,13 +199,11 @@ function updatePaginator(total) {
 
 function showPage(idx) {
   currentPage = idx;
-  const pages = document.querySelectorAll('#previewPagesContainer .page');
-  pages.forEach((p, i) => {
+  document.querySelectorAll('#previewPagesContainer .page').forEach((p, i) => {
     p.style.display = i === idx ? '' : 'none';
   });
 }
 
-// Se llama una sola vez desde main.js para registrar los botones del nav
 export function bindPreviewNav() {
   document.getElementById('pvPrev')?.addEventListener('click', () => {
     const total = document.querySelectorAll('#previewPagesContainer .page').length;
