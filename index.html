@@ -12,6 +12,47 @@
   <link rel="stylesheet" href="./assets/style.css" />
 
   <style>
+    /* ===== PAGINADOR VISTA PREVIA ===== */
+    #previewNav {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    #reviewNav button {
+      background: none;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 4px 14px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background .15s;
+      line-height: 1.6;
+    }
+    #previewNav button {
+      background: none;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 4px 14px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background .15s;
+      line-height: 1.6;
+    }
+    #previewNav button:hover:not(:disabled) { background: #f1f5f9; }
+    #previewNav button:disabled { opacity: .35; cursor: default; }
+    #pvPageCount { font-size: .85rem; color: #64748b; min-width: 48px; text-align: center; }
+
+    .page-continuation-header {
+      font-size: .85rem;
+      color: #64748b;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #e2e8f0;
+      overflow: hidden;
+    }
+
     /* ===== MODAL IMPORTAR TEXTO ===== */
     #importModal {
       display: none;
@@ -21,11 +62,7 @@
       align-items: center;
       justify-content: center;
     }
-    .modal-backdrop {
-      position: absolute;
-      inset: 0;
-      background: rgba(0,0,0,.45);
-    }
+    .modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.45); }
     .modal-box {
       position: relative;
       background: #fff;
@@ -37,44 +74,16 @@
       flex-direction: column;
       gap: 12px;
     }
-    .modal-box h3 {
-      margin: 0;
-      font-size: 1.1rem;
-    }
-    .modal-hint {
-      margin: 0;
-      font-size: .82rem;
-      color: #64748b;
-      line-height: 1.6;
-    }
-    .modal-hint code {
-      background: #f1f5f9;
-      padding: 1px 5px;
-      border-radius: 4px;
-      font-size: .8rem;
-    }
+    .modal-box h3 { margin: 0; font-size: 1.1rem; }
+    .modal-hint { margin: 0; font-size: .82rem; color: #64748b; line-height: 1.6; }
+    .modal-hint code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-size: .8rem; }
     .import-textarea {
-      width: 100%;
-      box-sizing: border-box;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      padding: 10px;
-      font-size: .95rem;
-      font-family: monospace;
-      resize: vertical;
+      width: 100%; box-sizing: border-box;
+      border: 1px solid #cbd5e1; border-radius: 8px;
+      padding: 10px; font-size: .95rem; font-family: monospace; resize: vertical;
     }
-    .import-preview {
-      margin: 0;
-      font-size: .8rem;
-      color: #16a34a;
-      min-height: 1.2em;
-      word-break: break-word;
-    }
-    .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-    }
+    .import-preview { margin: 0; font-size: .8rem; color: #16a34a; min-height: 1.2em; word-break: break-word; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
   </style>
 </head>
 <body>
@@ -114,7 +123,6 @@
       <div class="header-items">
         <h2>Ítems</h2>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <!-- ✨ NUEVO BOTÓN -->
           <button class="btn" id="importText" type="button">📝 Importar texto</button>
           <button class="btn" id="addItem" type="button">➕ Agregar ítem</button>
         </div>
@@ -136,72 +144,29 @@
     <aside class="preview-wrap">
       <div class="card preview">
         <h2>Vista previa</h2>
-        <div id="pdfTarget" class="pdf">
-          <div class="page">
-            <img class="main-logo" src="./assets/logo_urbano.jpg" alt="">
-            <div class="meta">
-              <div class="field cliente">
-                <div class="label">Cliente:</div><div id="pvCustomer">—</div>
-              </div>
-              <div class="field fecha right">
-                <div id="pvDate">—</div>
-              </div>
-              <div class="field direccion">
-                <div class="label">Dirección:</div><div id="pvAddress"></div>
-              </div>
-              <div class="field rif">
-                <div class="label">RIF:</div><div id="pvRif"></div>
-              </div>
-            </div>
 
-            <table>
-              <thead>
-                <tr>
-                  <th class="cantidad">Cant</th>
-                  <th class="descripcion">Descripción</th>
-                  <th class="precio">Precio</th>
-                  <th class="total">Total 1</th>
-                </tr>
-              </thead>
-              <tbody id="pvBody"></tbody>
-              <tfoot>
-                <tr>
-                  <td></td>
-                  <td></td>
-                  <td class="text-center totales">TOTAL</td>
-                  <td class="text-center totales" id="pvGrand">0,00 $</td>
-                </tr>
-              </tfoot>
-            </table>
-
-            <div class="info">
-              <h4>Información</h4>
-              <ul>
-                <li>El siguiente presupuesto no incluye IVA.</li>
-                <li>Al momento de aprobar el presupuesto debe cancelar el 80% del monto total y el 20% restante al momento de culminar el trabajo.</li>
-                <li>Métodos de pago: aceptamos efectivo en divisa, transferencias nacionales como Banesco, Provincial, Mercantil, Venezolano de Crédito y Banco de Venezuela.</li>
-              </ul>
-            </div>
-            <div class="social-box">
-              <div class="social-cell">
-                <img class="social-icon" src="./assets/gmail.png" alt="gmail">
-                <span class="social-text">urbanojardinypaisajismo@gmail.com</span>
-              </div>
-              <div class="social-cell">
-                <img class="social-icon" src="./assets/instagram.png" alt="Instagram">
-                <span class="social-text">@urbano_jardines</span>
-              </div>
-              <div class="social-cell">
-                <img class="social-icon" src="./assets/facebook.png" alt="Facebook">
-                <span class="social-text">facebook.com/urbanojardin/</span>
-              </div>
-              <div class="social-cell">
-                <img class="social-icon" src="./assets/whatsapp.png" alt="WhatsApp">
-                <span class="social-text">(0424)1681749</span>
-              </div>
-            </div>
-          </div>
+        <!-- Paginador ◀ 1/2 ▶ -->
+        <div id="previewNav">
+          <button id="pvPrev" type="button">&#8592;</button>
+          <span id="pvPageCount">1 / 1</span>
+          <button id="pvNext" type="button">&#8594;</button>
         </div>
+
+        <!-- Páginas renderizadas por render.js -->
+        <div id="pdfTarget" class="pdf">
+          <div id="previewPagesContainer"></div>
+        </div>
+
+        <!-- Elementos "fantasma" para compatibilidad con events.js (ocultos) -->
+        <div style="display:none">
+          <span id="pvCustomer">—</span>
+          <span id="pvAddress"></span>
+          <span id="pvRif"></span>
+          <span id="pvDate">—</span>
+          <table><tbody id="pvBody"></tbody></table>
+          <span id="pvGrand">0,00 $</span>
+        </div>
+
         <div class="toolbar" style="margin-top:12px">
           <button class="btn ghost" id="download2" type="button">⬇️ Descargar PDF</button>
         </div>
