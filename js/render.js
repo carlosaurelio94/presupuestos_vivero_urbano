@@ -83,8 +83,13 @@ function renderPreviewPages(state, els) {
     page.className = 'page';
     page.dataset.page = pageIdx;
 
+    const numStr = state.number
+      ? `<div class="pv-number">#${String(state.number).padStart(4, '0')}</div>`
+      : '';
+
     const metaBlock = pageIdx === 0 ? `
       <img class="main-logo" src="./assets/logo_urbano.jpg" alt="">
+      ${numStr}
       <div class="meta">
         <div class="field cliente">
           <div class="label">Cliente:</div>
@@ -106,13 +111,15 @@ function renderPreviewPages(state, els) {
         <span style="float:right">${els.pvDate.textContent}</span>
       </div>`;
 
-    const rows = pageItems.map(it => `
-      <tr>
+    const rows = pageItems.map((it, localIdx) => {
+      const globalIdx = pageIdx * ROWS_PER_PAGE + localIdx;
+      return `<tr data-i="${globalIdx}">
         <td class="right">${it.qty}</td>
         <td>${it.desc}</td>
         <td>${fmtVE(it.price, state.currency)}</td>
         <td>${fmtVE(it.qty * it.price, state.currency)}</td>
-      </tr>`).join('');
+      </tr>`;
+    }).join('');
 
     const totalFoot = isLast ? `
       <tfoot>

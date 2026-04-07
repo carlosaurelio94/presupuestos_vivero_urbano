@@ -22,13 +22,15 @@ export function bindEvents(state, els) {
       els.pvAddress.textContent = '';
       els.pvAddress.parentElement.style.display = 'none';
     }
-    renderItems(state, els); // re-render para actualizar la vista previa
+    // sin renderItems — no destruye el DOM del formulario
   };
 
   const onCurrency = (e) => {
     state.currency = e.target.value || ' $';
-    [...els.pvBody.rows].forEach((row, idx) => {
-      const it = state.items[idx];
+    // actualizar solo las celdas de precio en la preview, sin re-render
+    document.querySelectorAll('#previewPagesContainer tr[data-i]').forEach(row => {
+      const idx = Number(row.dataset.i);
+      const it  = state.items[idx];
       if (!it) return;
       row.cells[2].textContent = fmtVE(it.price, state.currency);
       row.cells[3].textContent = fmtVE(it.qty * it.price, state.currency);
@@ -36,7 +38,6 @@ export function bindEvents(state, els) {
     const total = state.items.reduce((a, it) => a + toNumber(it.qty) * toNumber(it.price), 0);
     els.totalBadge.textContent = `Total: ${fmtVE(total, state.currency)}`;
     els.pvGrand.textContent = fmtVE(total, state.currency);
-    renderItems(state, els);
   };
 
   const onRif = (e) => {
@@ -48,20 +49,24 @@ export function bindEvents(state, els) {
       els.pvRif.textContent = '';
       els.pvRif.parentElement.style.display = 'none';
     }
-    renderItems(state, els);
   };
 
   const onDate = (e) => {
     const [year, month, day] = e.target.value.split('-').map(Number);
     state.date = new Date(year, month - 1, day);
     els.pvDate.textContent = dateHuman(state.date);
-    renderItems(state, els);
+    // actualizar fecha en la preview sin re-render
+    document.querySelectorAll('#previewPagesContainer .field.fecha [data-pvdate]').forEach(el => {
+      el.textContent = dateHuman(state.date);
+    });
   };
 
-  // Textarea "Información"
+  // Textarea "Información" — debounce para no re-renderizar en cada tecla
+  let infoTimer = null;
   const onInfo = (e) => {
     state.info = e.target.value;
-    renderItems(state, els);
+    clearTimeout(infoTimer);
+    infoTimer = setTimeout(() => renderItems(state, els), 800);
   };
 
   const onItemsInput = (e) => {
@@ -74,22 +79,26 @@ export function bindEvents(state, els) {
 
     if (k === 'desc') {
       state.items[i].desc = input.value;
-      const row = els.pvBody.rows[i];
-      if (row) row.cells[1].textContent = input.value;
+      // actualizar celda de descripción en la preview directamente
+      const previewRow = document.querySelector(`#previewPagesContainer tr[data-i="${i}"]`);
+      if (previewRow) previewRow.cells[1].textContent = input.value;
     } else {
       const val = toNumber(input.value);
       state.items[i][k] = val;
-      const row = els.pvBody.rows[i];
-      if (row) {
-        row.cells[0].textContent = state.items[i].qty;
-        row.cells[2].textContent = fmtVE(state.items[i].price, state.currency);
-        row.cells[3].textContent = fmtVE(state.items[i].qty * state.items[i].price, state.currency);
+      const previewRow = document.querySelector(`#previewPagesContainer tr[data-i="${i}"]`);
+      if (previewRow) {
+        previewRow.cells[0].textContent = state.items[i].qty;
+        previewRow.cells[2].textContent = fmtVE(state.items[i].price, state.currency);
+        previewRow.cells[3].textContent = fmtVE(state.items[i].qty * state.items[i].price, state.currency);
       }
       const total = state.items.reduce((a, it) => a + toNumber(it.qty) * toNumber(it.price), 0);
       els.totalBadge.textContent = `Total: ${fmtVE(total, state.currency)}`;
-      els.pvGrand.textContent = fmtVE(total, state.currency);
+      els.pvGrand.textContent    = fmtVE(total, state.currency);
+      // actualizar total en la preview
+      const pvTotal = document.querySelector('#previewPagesContainer .totales:last-child');
+      if (pvTotal) pvTotal.textContent = fmtVE(total, state.currency);
     }
-    renderItems(state, els);
+    // SIN renderItems — el input mantiene el foco
   };
 
   const onItemsClick = (e) => {
