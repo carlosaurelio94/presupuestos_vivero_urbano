@@ -11,6 +11,7 @@ export const els = {
   items: $('#items'),
   addItem: $('#addItem'),
   seed: $('#seed'),
+  clear: $('#clear'),
   download: $('#download'),
   download2: $('#download2'),
 

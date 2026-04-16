@@ -106,7 +106,6 @@
       border-radius: 8px;
       padding: 10px 12px;
       font-size: .88rem;
-      color: #1e293b;
       line-height: 1.55;
       resize: vertical;
       min-height: 100px;
@@ -213,12 +212,13 @@
         </div>
       </div>
 
-      <!-- Cambio 5: textarea editable para el bloque Información -->
+      <!-- textarea editable para el bloque Información -->
       <div class="info-edit-wrap">
         <label for="infoText">Texto de información (aparece al pie del presupuesto)</label>
         <textarea id="infoText" rows="5">El siguiente presupuesto no incluye IVA.
 Al momento de aprobar el presupuesto debe cancelar el 80% del monto total y el 20% restante al momento de culminar el trabajo.
 Métodos de pago: aceptamos efectivo en divisa, transferencias nacionales como Banesco, Provincial, Mercantil, Venezolano de Crédito y Banco de Venezuela.</textarea>
+        <button class="btn" id="toggleInfo" type="button" style="margin-top:8px;font-size:.8rem;padding:6px 10px;">💱 Cambiar a modo Euro BCV</button>
       </div>
 
       <div class="header-items">
@@ -238,6 +238,7 @@ Métodos de pago: aceptamos efectivo en divisa, transferencias nacionales como B
 
       <div class="toolbar">
         <button class="btn" id="seed" type="button">📋 Cargar ejemplo</button>
+        <button class="btn warn" id="clear" type="button">🗑️ Limpiar</button>
         <button class="btn primary" id="download" type="button">🧾 Descargar PDF</button>
       </div>
     </section>

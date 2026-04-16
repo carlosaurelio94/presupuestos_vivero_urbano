@@ -1,6 +1,7 @@
 // events.js
 import { dateHuman, fmtVE, toNumber, parseItemsText } from './utils.js';
 import { renderItems } from './render.js';
+import { INFO_DEFAULT, INFO_ALT } from './state.js';
 
 let wired = false;
 
@@ -238,6 +239,51 @@ export function bindEvents(state, els) {
   els.addItem.addEventListener('click', onAddItem);
   els.seed.addEventListener('click',    onSeed);
 
+  const onClear = () => {
+    if (!confirm('¿Limpiar todo el formulario?')) return;
+    state.customer = '';
+    state.address  = '';
+    state.rif      = '';
+    state.currency = ' $';
+    state.info     = INFO_DEFAULT;
+    state.items    = [{ qty: 1, desc: '', price: 0, confirmed: false }];
+
+    document.getElementById('customer').value = '';
+    document.getElementById('address').value  = '';
+    document.getElementById('rif').value      = '';
+    document.getElementById('currency').value = ' $';
+    const infoEl = document.getElementById('infoText');
+    if (infoEl) infoEl.value = INFO_DEFAULT;
+
+    const today = new Date();
+    state.date = today;
+    const pad = n => String(n).padStart(2, '0');
+    document.getElementById('date').value = `${today.getFullYear()}-${pad(today.getMonth()+1)}-${pad(today.getDate())}`;
+
+    els.pvCustomer.textContent = '—';
+    els.pvAddress.textContent  = '';
+    els.pvRif.textContent      = '';
+    renderItems(state, els);
+  };
+  if (els.clear) els.clear.addEventListener('click', onClear);
+
   const importBtn = document.getElementById('importText');
   if (importBtn) importBtn.addEventListener('click', openImportModal);
+
+  // Toggle preset de información
+  const toggleInfoBtn = document.getElementById('toggleInfo');
+  if (toggleInfoBtn) {
+    let usingAlt = false;
+    toggleInfoBtn.addEventListener('click', () => {
+      usingAlt = !usingAlt;
+      const next = usingAlt ? INFO_ALT : INFO_DEFAULT;
+      state.info = next;
+      const infoEl = document.getElementById('infoText');
+      if (infoEl) infoEl.value = next;
+      toggleInfoBtn.textContent = usingAlt
+        ? '↩️ Volver al texto por defecto'
+        : '💱 Cambiar a modo Euro BCV';
+      renderItems(state, els);
+    });
+  }
 }

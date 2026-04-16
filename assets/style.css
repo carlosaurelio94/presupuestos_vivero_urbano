@@ -100,7 +100,7 @@ input:focus, textarea:focus{ border-color: var(--accent); }
   border-radius:10px; overflow:hidden;
   box-shadow:0 12px 40px rgba(0,0,0,.35);
 }
-.pdf .page{ padding: 0mm 25mm 10mm 5mm; }
+.pdf .page{ padding: 5mm 15mm 10mm 15mm; }
 
 .pdf h3{ margin:0 0 8px; font-size:16px; color:#0f172a; }
 .pdf .meta {
@@ -250,6 +250,6 @@ input:focus, textarea:focus{ border-color: var(--accent); }
     width: 210mm !important;
   }
   .pdf.pdf-export .page{
-    padding: 0mm 25mm 10mm 5mm !important; /* o el padding que quieras para el PDF */
+    padding: 5mm 15mm 10mm 15mm !important;
   }
 }

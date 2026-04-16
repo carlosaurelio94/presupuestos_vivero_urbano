@@ -171,7 +171,7 @@ function renderPreviewPages(state, els) {
             <th class="cantidad">Cant</th>
             <th class="descripcion">Descripción</th>
             <th class="precio">Precio</th>
-            <th class="total">Total 1</th>
+            <th class="total">Total</th>
           </tr>
         </thead>
         <tbody>${rows}</tbody>
